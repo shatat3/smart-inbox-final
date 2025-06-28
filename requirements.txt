@@ -6,3 +6,4 @@ langchain-community
 python-dotenv
 requests
 langchain-core
+deep-translator

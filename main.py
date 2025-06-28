@@ -1,36 +1,46 @@
+from flask import Flask, render_template, request
 from handlers.summarizer import summarize_email
-from handlers.reply_generator import generate_reply
 from handlers.translator import translate_to_arabic
-import langdetect
+from langdetect import detect
+from dotenv import load_dotenv
+import os
 
-# Helper to check if the email is Arabic
-def is_arabic(text):
-    try:
-        return langdetect.detect(text) == 'ar'
-    except:
-        return False
+load_dotenv()
 
-# Load email from file
-with open("data/sample_emails.txt", "r", encoding="utf-8") as f:
-    email_text = f.read().strip()
+app = Flask(__name__)
 
-print("\n📩 Original Email:\n", email_text)
+def suggest_reply(summary, language="en"):
+    return f"Thank you for your message. Here's a quick summary of your concern: \"{summary}\". We are reviewing your request and will respond shortly."
 
-if is_arabic(email_text):
-    print("\n🌐 Detected Language: Arabic")
-    summary = summarize_email(email_text, language="ar")
-    reply = generate_reply(email_text, language="ar")
-    print("\n🧠 Summary (Arabic):\n", summary)
-    print("\n✉️ Suggested Reply (Arabic):\n", reply)
-else:
-    print("\n🌐 Detected Language: Non-Arabic")
-    summary = summarize_email(email_text, language="en")
-    reply = generate_reply(email_text, language="en")
-    translated_reply = translate_to_arabic(reply)
-    print("\n🧠 Summary (English):\n", summary)
-    print("\n✉️ Suggested Reply (English):\n", reply)
-    print("\n✉️ Suggested Reply (Arabic Translation):\n", translated_reply)
+@app.route("/", methods=["GET", "POST"])
+def index():
+    summary = ""
+    reply = ""
+    original_email = ""
 
+    if request.method == "POST":
+        original_email = request.form.get("email", "").strip()
+        action = request.form.get("action")
+
+        if original_email:
+            try:
+                lang = detect(original_email)
+                summary = summarize_email(original_email, language=lang)
+
+                if lang != "ar":
+                    summary_translated = translate_to_arabic(summary)
+                else:
+                    summary_translated = summary
+
+                if action == "reply":
+                    reply = suggest_reply(summary_translated, language=lang)
+
+                summary = summary_translated
+
+            except Exception as e:
+                summary = f"❌ Error: {str(e)}"
+
+    return render_template("index.html", summary=summary, original_email=original_email, reply=reply)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
+    app.run(debug=True)

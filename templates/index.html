@@ -1,22 +1,32 @@
 <!DOCTYPE html>
 <html>
-<head><title>Inbox Assistant</title></head>
+<head>
+    <title>Email Summarizer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
 <body>
-<h3>Welcome {{ user }}</h3>
-<form action="/generate" method="POST">
-    <textarea name="email_text" rows="10" cols="60" placeholder="Paste your email here..."></textarea><br>
-    <button type="submit">Generate Summary & Reply</button>
-</form>
+    <div class="container">
+        <h1>Email Summarizer & Responder</h1>
+        <form method="POST">
+            <label for="email">Paste your email:</label><br>
+            <textarea name="email" rows="10">{{ original_email }}</textarea><br><br>
+            <button type="submit" name="action" value="summarize">Summarize</button>
+            <button type="submit" name="action" value="reply">Suggest Reply</button>
+        </form>
 
-{% if summary %}
-    <h4>🧠 Summary:</h4>
-    <p>{{ summary }}</p>
+        {% if summary %}
+        <div class="summary">
+            <h2>📝 Summary:</h2>
+            <p>{{ summary }}</p>
+        </div>
+        {% endif %}
 
-    <h4>✉️ Reply:</h4>
-    <p>{{ reply }}</p>
-
-    <h4>🌐 Arabic Translation:</h4>
-    <p>{{ translated }}</p>
-{% endif %}
+        {% if reply %}
+        <div class="summary">
+            <h2>📬 Suggested Reply:</h2>
+            <p>{{ reply }}</p>
+        </div>
+        {% endif %}
+    </div>
 </body>
 </html>

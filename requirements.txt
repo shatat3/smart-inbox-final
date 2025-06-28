@@ -1,0 +1,7 @@
+Flask
+Flask-Dance
+openai
+langchain
+langchain-community
+python-dotenv
+requests

@@ -30,3 +30,7 @@ else:
     print("\n🧠 Summary (English):\n", summary)
     print("\n✉️ Suggested Reply (English):\n", reply)
     print("\n✉️ Suggested Reply (Arabic Translation):\n", translated_reply)
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
